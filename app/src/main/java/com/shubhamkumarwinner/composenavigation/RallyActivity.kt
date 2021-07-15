@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -54,49 +55,60 @@ fun RallyApp() {
                 )
             }
         ) { innerPadding ->
-            NavHost(navController = navController,
-                startDestination = Overview.name,
-                modifier = Modifier.padding(innerPadding)) {
-                composable(Overview.name){
-                    OverviewBody(
-                        onClickSeeAllAccounts = {navController.navigate(Accounts.name)},
-                        onClickSeeAllBills = {navController.navigate(Bills.name)},
-                        onAccountClick = { name ->
-                            navigateToSingleAccount(navController, name)
-                        },
-                    )
-                }
-                composable(Bills.name){
-                    BillsBody(bills = UserData.bills)
-                }
-                composable(Accounts.name){
-                    AccountsBody(accounts = UserData.accounts)
-                    AccountsBody(accounts = UserData.accounts) { name ->
-                        navigateToSingleAccount(
-                            navController = navController,
-                            accountName = name
-                        )
-                    }
-                }
+            RallyNavHost(navController = navController,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
+    }
+}
 
-                val accountsName = Accounts.name
-                composable(
-                    route = "$accountsName/{name}",
-                    arguments = listOf(
-                        navArgument(name = "name"){
-                            type = NavType.StringType
-                        }
-                    ),
-                    //enabling deep link
-                    deepLinks =  listOf(navDeepLink {
-                        uriPattern = "rally://$accountsName/{name}"
-                    })
-                ){ entry ->
-                    val accountName = entry.arguments?.getString("name")
-                    val account = UserData.getAccount(accountName = accountName)
-                    SingleAccountBody(account = account)
-                }
+@Composable
+fun RallyNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Overview.name,
+        modifier = modifier
+    ) {
+        composable(Overview.name) {
+            OverviewBody(
+                onClickSeeAllAccounts = { navController.navigate(Accounts.name) },
+                onClickSeeAllBills = { navController.navigate(Bills.name) },
+                onAccountClick = { name ->
+                    navigateToSingleAccount(navController, name)
+                },
+            )
+        }
+        composable(Bills.name) {
+            BillsBody(bills = UserData.bills)
+        }
+        composable(Accounts.name) {
+            AccountsBody(accounts = UserData.accounts) { name ->
+                navigateToSingleAccount(
+                    navController = navController,
+                    accountName = name
+                )
             }
+        }
+
+        val accountsName = Accounts.name
+        composable(
+            route = "$accountsName/{name}",
+            arguments = listOf(
+                navArgument(name = "name") {
+                    type = NavType.StringType
+                }
+            ),
+            //enabling deep link
+            deepLinks = listOf(navDeepLink {
+                uriPattern = "rally://$accountsName/{name}"
+            })
+        ) { entry ->
+            val accountName = entry.arguments?.getString("name")
+            val account = UserData.getAccount(accountName = accountName)
+            SingleAccountBody(account = account)
         }
     }
 }
