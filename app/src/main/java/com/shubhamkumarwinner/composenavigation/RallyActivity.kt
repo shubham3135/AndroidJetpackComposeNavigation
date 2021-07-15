@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navDeepLink
 import com.shubhamkumarwinner.composenavigation.RallyScreen.*
 import com.shubhamkumarwinner.composenavigation.data.Bill
 import com.shubhamkumarwinner.composenavigation.data.UserData
@@ -85,7 +86,11 @@ fun RallyApp() {
                         navArgument(name = "name"){
                             type = NavType.StringType
                         }
-                    )
+                    ),
+                    //enabling deep link
+                    deepLinks =  listOf(navDeepLink {
+                        uriPattern = "rally://$accountsName/{name}"
+                    })
                 ){ entry ->
                     val accountName = entry.arguments?.getString("name")
                     val account = UserData.getAccount(accountName = accountName)
